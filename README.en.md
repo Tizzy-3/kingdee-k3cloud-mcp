@@ -1,6 +1,8 @@
-# Kingdee K3Cloud MCP
+# Kingdee MCP Server — K3Cloud (金蝶MCP)
 
 [English](README.en.md) | [中文](README.md)
+
+[Official Website](https://adamzhang1987.github.io/kingdee-k3cloud-mcp/) | [GitHub](https://github.com/adamzhang1987/kingdee-k3cloud-mcp) | [PyPI](https://pypi.org/project/kingdee-k3cloud-mcp/)
 
 [![PyPI version](https://img.shields.io/pypi/v/kingdee-k3cloud-mcp)](https://pypi.org/project/kingdee-k3cloud-mcp/)
 [![Downloads](https://img.shields.io/pypi/dm/kingdee-k3cloud-mcp)](https://pypi.org/project/kingdee-k3cloud-mcp/)
@@ -8,7 +10,7 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![CI](https://github.com/adamzhang1987/kingdee-k3cloud-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/adamzhang1987/kingdee-k3cloud-mcp/actions/workflows/ci.yml)
 
-MCP Server for Kingdee K3Cloud ERP. Lets AI assistants (Claude Desktop, Claude Code, Cursor, Windsurf, Cline, Continue, Cherry Studio, and any MCP-compatible client) query and operate your Kingdee ERP system through natural language. A standard PyPI package — `pip install` or `uvx` both work out of the box, with no dependency on a specific package manager.
+Kingdee MCP Server (金蝶MCP) for Kingdee K3Cloud / 金蝶云星空 ERP. It lets AI assistants (Claude Desktop, Claude Code, Cursor, Windsurf, Cline, Continue, Cherry Studio, and any MCP-compatible client) query and operate your Kingdee ERP system through natural language. A standard PyPI package — `pip install` or `uvx` both work out of the box, with no dependency on a specific package manager.
 
 > **Tip**: Connect through an MCP-capable agent platform like [Openclaw](https://docs.openclaw.ai/) to query stock levels or bills via natural language directly from the IM channels it supports (e.g. WeChat, Telegram) — no need to open the K3Cloud web UI. Agents that support the Skill mechanism (Claude Code, Openclaw, etc.) can additionally pair this with [kingdee-k3cloud-skill](https://github.com/adamzhang1987/kingdee-k3cloud-skill) for a better experience — the Skill injects K3Cloud form field knowledge, common query patterns, and workflow guidance, significantly reducing trial and error — but it's **not required**: the MCP server works standalone with the full tool set on any MCP client.
 
@@ -27,7 +29,7 @@ MCP Server for Kingdee K3Cloud ERP. Lets AI assistants (Claude Desktop, Claude C
 - **Universal interface design**: a single `form_id` parameter supports materials, customers, sales orders, purchase orders, and all other forms — no per-form configuration needed
 - **Advanced query primitives**: `query_bill_all` (auto-pagination), `query_bill_to_file` (streaming to disk), `query_bill_range` (date sharding) — eliminate the need for manual looping
 - **Read-only / read-write modes**: restrict AI to query-only operations to prevent accidental writes
-- **Automatic session recovery**: handles session timeouts gracefully during long-running sessions
+- **Authentication diagnostics**: credentials are verified at startup, and auth/authorization misconfiguration returns actionable remediation instead of Kingdee's misleading "session lost" message
 - **Multiple transport protocols**: stdio (local), SSE, streamable-http (remote / shared)
 - **Standard Python package**: install with `pip install`, requires only Python 3.10+, no mandatory package manager
 - **Type-safe argument validation**: every tool's parameters are type-annotated and validated at call time by FastMCP's automatic Pydantic runtime validation — malformed input is rejected before it ever reaches the K3Cloud API
@@ -349,7 +351,7 @@ This project uses the official Kingdee Python SDK ([kingdee-cdp-webapi-sdk](http
 
 There's more than one way to integrate AI with Kingdee ERP, and different approaches optimize for different things. This project tends to fit best when:
 
-- **You need a long-running, production-grade AI agent**: `--mode readonly` provides a read-only boundary, and the built-in `RetryableK3CloudApiSdk` automatically recovers sessions after timeouts/disconnects during long-running processes — no manual restarts needed
+- **You need a long-running, production-grade AI agent**: `--mode readonly` provides a read-only boundary; credentials are checked at startup so misconfiguration shows up in the startup log rather than on the first tool call; and authentication failures come back with a precise diagnosis instead of a misleading message, so troubleshooting isn't guesswork
 - **You're querying or exporting large volumes of data**: `query_bill_all` (auto-pagination), `query_bill_to_file` (streaming to disk), and `query_bill_range` (date sharding) are purpose-built for tens-of-thousands-of-rows workloads, so the model doesn't have to hand-roll pagination loops
 - **Your K3Cloud deployment has custom fields or customizations**: the `query_metadata` tool lets the AI discover a form's actual field structure at query time instead of relying on a fixed field list; pairing it with [kingdee-k3cloud-skill](https://github.com/adamzhang1987/kingdee-k3cloud-skill) lets you encode your own custom forms, fields, and approval flows as reusable knowledge
 - **You need multiple access paths to coexist**: the same server supports stdio (local IDE), SSE, and streamable-http (remote/shared deployment), and can also be wired into IM channels as an Openclaw tool
